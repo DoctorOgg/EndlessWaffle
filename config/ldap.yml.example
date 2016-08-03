@@ -1,0 +1,11 @@
+development:
+  port: 10389
+  base: dc=bigcorp,dc=com
+  host: ldap.bigcorp.com
+  auth_user: cn=auth,dc=bigcorp,dc=com
+  auth_password: secrect
+  user_dn: cn
+  group_class: posixGroup
+  group_dn: cn
+  user_group: EndlessWaffleUsers
+  admin_group: EndlessWaffleAdmins
