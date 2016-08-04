@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160707203756) do
+ActiveRecord::Schema.define(version: 20160804002409) do
+
+  create_table "api_keys", force: :cascade do |t|
+    t.string   "access_token"
+    t.boolean  "admin",        default: false
+    t.string   "user"
+    t.datetime "created_at",                   null: false
+    t.datetime "updated_at",                   null: false
+    t.index ["access_token"], name: "index_api_keys_on_access_token"
+  end
 
   create_table "ec2s", force: :cascade do |t|
     t.string   "instanceId"
@@ -83,6 +92,11 @@ ActiveRecord::Schema.define(version: 20160707203756) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_services_on_name"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
 end
