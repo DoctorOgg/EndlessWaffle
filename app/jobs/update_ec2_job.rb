@@ -9,13 +9,15 @@ class UpdateEc2Job < ApplicationJob
       :aws_secret_access_key    => AWS_CONFIG["aws_secret_access_key"]
     })
 
-    fog_connection.describe_instances.data[:body]["reservationSet"].first["instancesSet"].each do |instance|
-      if Ec2.where(instanceId: instance["instanceId"]).exists?
-        record = Ec2.where(instanceId: instance["instanceId"]).first
+
+
+    fog_connection.describe_instances.data[:body]["reservationSet"].each do |instance|
+      if Ec2.where(instanceId: instance["instancesSet"][0]["instanceId"]).exists?
+        record = Ec2.where(instanceId: instance["instancesSet"][0]["instanceId"]).first
       else
         record = Ec2.new
       end
-      instance.each do |k,v|
+      instance["instancesSet"][0].each do |k,v|
         record[k] = v
       end
       # update our nodemaps
