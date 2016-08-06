@@ -37,3 +37,4 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'fog', '~> 1.38'
 gem 'net-ldap', '~> 0.15.0'
+gem 'rest-client', '~> 2.0'

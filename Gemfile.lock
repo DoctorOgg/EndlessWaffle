@@ -43,6 +43,8 @@ GEM
     builder (3.2.2)
     byebug (9.0.5)
     concurrent-ruby (1.0.2)
+    domain_name (0.5.20160615)
+      unf (>= 0.0.5, < 1.0.0)
     erubis (2.7.0)
     excon (0.50.1)
     ffi (1.9.10)
@@ -177,6 +179,8 @@ GEM
     formatador (0.2.5)
     globalid (0.3.6)
       activesupport (>= 4.1.0)
+    http-cookie (1.0.2)
+      domain_name (~> 0.5)
     i18n (0.7.0)
     inflecto (0.0.2)
     ipaddress (0.8.3)
@@ -195,6 +199,7 @@ GEM
     minitest (5.9.0)
     multi_json (1.12.1)
     net-ldap (0.15.0)
+    netrc (0.11.0)
     nio4r (1.2.1)
     nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
@@ -235,6 +240,10 @@ GEM
       builder
       nokogiri (>= 1.4.1)
       trollop
+    rest-client (2.0.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     spring (1.7.2)
     spring-watcher-listen (2.0.0)
       listen (>= 2.7, < 4.0)
@@ -252,6 +261,9 @@ GEM
     trollop (2.1.2)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    unf (0.1.4)
+      unf_ext
+    unf_ext (0.0.7.2)
     websocket-driver (0.6.4)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -267,6 +279,7 @@ DEPENDENCIES
   net-ldap (~> 0.15.0)
   puma (~> 3.0)
   rails (~> 5.0.0)
+  rest-client (~> 2.0)
   spring
   spring-watcher-listen (~> 2.0.0)
   sqlite3

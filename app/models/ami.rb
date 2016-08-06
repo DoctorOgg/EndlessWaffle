@@ -1,0 +1,2 @@
+class Ami < ApplicationRecord
+end

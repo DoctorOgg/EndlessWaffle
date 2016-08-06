@@ -10,7 +10,6 @@ class UpdateEc2Job < ApplicationJob
     })
 
 
-
     fog_connection.describe_instances.data[:body]["reservationSet"].each do |instance|
       if Ec2.where(instanceId: instance["instancesSet"][0]["instanceId"]).exists?
         record = Ec2.where(instanceId: instance["instancesSet"][0]["instanceId"]).first
