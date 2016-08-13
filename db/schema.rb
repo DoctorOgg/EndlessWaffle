@@ -10,7 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160806210602) do
+ActiveRecord::Schema.define(version: 20160813024612) do
+
+  create_table "ami_instance_type_matrices", force: :cascade do |t|
+    t.string   "family"
+    t.integer  "virtualization_engine"
+    t.integer  "storage_engine"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+  end
 
   create_table "amis", force: :cascade do |t|
     t.string   "availability_zone"
@@ -100,9 +108,26 @@ ActiveRecord::Schema.define(version: 20160806210602) do
 
   create_table "roles", force: :cascade do |t|
     t.string   "name"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
+    t.string   "environments"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
     t.index ["name"], name: "index_roles_on_name"
+  end
+
+  create_table "security_groups", force: :cascade do |t|
+    t.string   "name"
+    t.string   "description"
+    t.string   "group_id"
+    t.string   "ip_permissions"
+    t.string   "ip_permissions_egress"
+    t.string   "owner_id"
+    t.string   "vpc_id"
+    t.string   "tags"
+    t.datetime "created_at",            null: false
+    t.datetime "updated_at",            null: false
+    t.index ["group_id"], name: "index_security_groups_on_group_id"
+    t.index ["name"], name: "index_security_groups_on_name"
+    t.index ["vpc_id"], name: "index_security_groups_on_vpc_id"
   end
 
   create_table "subnets", force: :cascade do |t|
@@ -124,6 +149,18 @@ ActiveRecord::Schema.define(version: 20160806210602) do
   create_table "users", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "vpcs", force: :cascade do |t|
+    t.string   "vpc_id"
+    t.string   "state"
+    t.string   "cidr_block"
+    t.string   "dhcp_options_id"
+    t.string   "tags"
+    t.string   "tenancy"
+    t.datetime "created_at",      null: false
+    t.datetime "updated_at",      null: false
+    t.index ["vpc_id"], name: "index_vpcs_on_vpc_id"
   end
 
 end

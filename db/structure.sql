@@ -1,0 +1,38 @@
+CREATE TABLE "amis" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "availability_zone" varchar, "name" varchar, "version" varchar, "arch" varchar, "instance_type" varchar, "release" integer, "ami_id" varchar, "aki_id" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_amis_on_aki_id" ON "amis" ("aki_id");
+CREATE INDEX "index_amis_on_ami_id" ON "amis" ("ami_id");
+CREATE INDEX "index_amis_on_availability_zone" ON "amis" ("availability_zone");
+CREATE INDEX "index_amis_on_name" ON "amis" ("name");
+CREATE INDEX "index_amis_on_version" ON "amis" ("version");
+CREATE TABLE "api_keys" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "access_token" varchar, "admin" boolean DEFAULT 'f', "user" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_api_keys_on_access_token" ON "api_keys" ("access_token");
+CREATE TABLE "ec2s" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "instanceId" varchar, "ownerId" varchar, "imageId" varchar, "keyName" varchar, "amiLaunchIndex" integer, "instanceType" varchar, "kernelId" varchar, "hypervisor" varchar, "architecture" varchar, "sourceDestCheck" boolean, "clientToken" varchar, "networkInterfaces" text, "placement" text, "iamInstanceProfile" text, "instanceState" text, "monitoring" text, "productCodes" text, "stateReason" text, "tagSet" text, "blockDeviceMapping" text, "privateDnsName" varchar, "dnsName" varchar, "subnetId" varchar, "vpcId" varchar, "privateIpAddress" varchar, "ipAddress" varchar, "rootDeviceType" varchar, "rootDeviceName" varchar, "virtualizationType" varchar, "networkInterfaceId" varchar, "attachmentId" varchar, "ebsOptimized" varchar, "launchTime" datetime, "reason" varchar, "nodemap_id" integer, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_ec2s_on_dnsName" ON "ec2s" ("dnsName");
+CREATE INDEX "index_ec2s_on_imageId" ON "ec2s" ("imageId");
+CREATE INDEX "index_ec2s_on_instanceId" ON "ec2s" ("instanceId");
+CREATE INDEX "index_ec2s_on_instanceType" ON "ec2s" ("instanceType");
+CREATE INDEX "index_ec2s_on_ipAddress" ON "ec2s" ("ipAddress");
+CREATE INDEX "index_ec2s_on_nodemap_id" ON "ec2s" ("nodemap_id");
+CREATE INDEX "index_ec2s_on_ownerId" ON "ec2s" ("ownerId");
+CREATE INDEX "index_ec2s_on_privateDnsName" ON "ec2s" ("privateDnsName");
+CREATE INDEX "index_ec2s_on_privateIpAddress" ON "ec2s" ("privateIpAddress");
+CREATE INDEX "index_ec2s_on_reason" ON "ec2s" ("reason");
+CREATE TABLE "nodemaps" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "role" varchar, "environment" varchar, "name" varchar, "instanceState" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE TABLE "roles" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_roles_on_name" ON "roles" ("name");
+CREATE TABLE "security_groups" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar, "description" varchar, "group_id" varchar, "ip_permissions" varchar, "ip_permissions_egress" varchar, "owner_id" varchar, "vpc_id" varchar, "tags" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_security_groups_on_group_id" ON "security_groups" ("group_id");
+CREATE INDEX "index_security_groups_on_name" ON "security_groups" ("name");
+CREATE INDEX "index_security_groups_on_vpc_id" ON "security_groups" ("vpc_id");
+CREATE TABLE "subnets" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "subnet_id" varchar, "state" varchar, "vpc_id" varchar, "cidr_block" varchar, "available_ip_address_count" integer, "availability_zone" varchar, "tag_set" varchar, "map_public_ip_on_launch" boolean, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_subnets_on_availability_zone" ON "subnets" ("availability_zone");
+CREATE INDEX "index_subnets_on_subnet_id" ON "subnets" ("subnet_id");
+CREATE INDEX "index_subnets_on_vpc_id" ON "subnets" ("vpc_id");
+CREATE TABLE "users" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE TABLE "vpcs" ("id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "vpc_id" varchar, "state" varchar, "cidr_block" varchar, "dhcp_options_id" varchar, "tags" varchar, "tenancy" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+CREATE INDEX "index_vpcs_on_vpc_id" ON "vpcs" ("vpc_id");
+CREATE TABLE "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
+CREATE TABLE "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime NOT NULL, "updated_at" datetime NOT NULL);
+INSERT INTO schema_migrations (version) VALUES ('20160703212410'), ('20160703220044'), ('20160707203756'), ('20160803212507'), ('20160804002409'), ('20160806155218'), ('20160806210602'), ('20160807160100'), ('20160807163829');
+
+
