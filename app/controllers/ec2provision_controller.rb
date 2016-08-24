@@ -1,8 +1,45 @@
 class Ec2provisionController < ApplicationController
-  before_action :restrict_access
+  include ActionController::Live
+
+  before_action :restrict_access, :except => [:watchjob]
+
+  def watchjob
+    if !params.key? :uuid
+      render :json => {:error => "You Must Sepecify an UUID".to_json}, :status => 500; return
+    end
+    response.headers['Content-Type'] = 'text/event-stream'
+    r = REDIS.dup
+
+    r.subscribe(params[:uuid]) do |on|
+      on.message do |channel, msg|
+
+        if msg == "EOF"
+          response.stream.write msg
+          response.stream.close
+          return
+        else
+          response.stream.write msg
+        end
+
+      end
+    end
+
+  end
 
   def showjobs
+    pendingOrRunning = ProvisionJobDatum.select("uuid,environment,role,status,name,created_at").where("status != 'completed'")
+    lastFiveCompleted = ProvisionJobDatum.select("uuid,environment,role,status,name,created_at").where("status = 'completed'").last(5)
+    result = pendingOrRunning + lastFiveCompleted
+    render :json => {:result => result}
+  end
 
+  def show
+    if !params.key? :uuid
+      render :json => {:error => "You Must Sepecify an UUID".to_json}, :status => 500; return
+    end
+    # data = ProvisionJobDatum.where(uuid: params[:uuid]).first
+    data = Buildlog.select("log").where(uuid: params[:uuid]).order("id ASC")
+    render :json => {:result => data}
   end
 
   def build
@@ -14,57 +51,59 @@ class Ec2provisionController < ApplicationController
       render :json => {:errors => pre_flight_errors}.to_json, :status => 500; return
     end
 
-    @role = params["role"]
-    @environment = params["environment"]
-    @availability_zone = params["availability_zone"]
+    role = params["role"]
+    environment = params["environment"]
+    availability_zone = params["availability_zone"]
 
-    # @role = "idr"
-    # @environment = "prod1"
-    # @availability_zone = "us-east-1a"
-
-    @my_role = Role.where(name: @role).first
-    if @my_role.nil?
-      render :json => {:error => "Unable to find role with name: #{@role}".to_json}, :status => 500; return
+    my_role = Role.where(name: role).first
+    if my_role.nil?
+      render :json => {:error => "Unable to find role with name: #{role}".to_json}, :status => 500; return
     end
 
     # Ok we have a role, but do we have an environment for this role?
-    if !@my_role.environments.key? @environment
-      render :json => {:error => "Unable to find enviroment for role with name: #{@environment}".to_json}, :status => 500; return
+    if !my_role.environments.key? environment
+      render :json => {:error => "Unable to find enviroment for role with name: #{environment}".to_json}, :status => 500; return
     end
 
-    @my_enviroment = @my_role.environments[@environment]
-    if @my_enviroment["ami"].key? 'ami_id'
-      @my_ami_id = @my_enviroment["ami"]['ami_id']
+    my_enviroment = my_role.environments[environment]
+    if my_enviroment["ami"].key? 'ami_id'
+      my_ami_id = my_enviroment["ami"]['ami_id']
     else
-      @my_ami_id = find_ami(@availability_zone,@my_enviroment["ami"]["instance_type"],@my_enviroment["ami"]["version"])['ami_id']
+      my_ami_id = find_ami(availability_zone,my_enviroment["ami"]["instance_type"],my_enviroment["ami"]["version"])['ami_id']
     end
-    if @my_ami_id.nil?
+    if my_ami_id.nil?
+      render :json => {:error => "Unable to find AMI".to_json}, :status => 500; return
+    end
+    if my_ami_id.empty?
       render :json => {:error => "Unable to find AMI".to_json}, :status => 500; return
     end
 
-    @new_name = find_next_name(@role, @environment)
+    new_name = find_next_name(role, environment)
 
-    @my_subnet = find_subnet(@availability_zone)
-    if @my_subnet.nil?
+    my_subnet = find_subnet(availability_zone)
+    if my_subnet.nil?
       render :json => {:error => "Unable to find Subnet".to_json}, :status => 500; return
     end
 
-    @my_security_groups=[]
-    @my_enviroment["security_groups"].each do |n|
-      g = SecurityGroup.where(name: n).where(vpc_id: @my_subnet.vpc_id).first
-      @my_security_groups.push(g.group_id)
+    my_security_groups=[]
+    my_enviroment["security_groups"].each do |n|
+      g = SecurityGroup.where(name: n).where(vpc_id: my_subnet.vpc_id).first
+      my_security_groups.push(g.group_id)
     end
-    if @my_security_groups.empty?
+    if my_security_groups.empty?
       render :json => {:error => "Unable to lookup security_groups IDs".to_json}, :status => 500; return
     end
 
     # Let's make sure we can actually build this thing....
-    if !@my_enviroment["ami"].key? 'ami_id'
-      if !is_build_possable?(@my_enviroment['ami']['instance_size'],@my_ami_id)
-        render :json => {:error => "The instance size (#{@my_enviroment['ami']['instance_size']}) and ami selected (#{@my_ami_id}) are not compatable, see: https://aws.amazon.com/amazon-linux-ami/instance-type-matrix/".to_json}, :status => 500; return
-      end
-    end
-    render :json => { :name => @new_name,:ami => @my_ami_id, :subnet => @my_subnet, :security_groups => @my_security_groups, :environment_config=>@my_enviroment}
+    # if !my_enviroment["ami"].key? 'ami_id'
+    #   if !is_build_possable?(my_enviroment['ami']['instance_size'],my_ami_id)
+    #     render :json => {:error => "The instance size (#{my_enviroment['ami']['instance_size']}) and ami selected (#{my_ami_id}) are not compatable, see: https://aws.amazon.com/amazon-linux-ami/instance-type-matrix/".to_json}, :status => 500; return
+    #   end
+    # end
+
+    job_details = { :uuid => SecureRandom.uuid, :environment =>   environment, :role => role ,:name => new_name,:ami => my_ami_id, :subnet => my_subnet, :security_groups => my_security_groups, :environment_config=>my_enviroment}
+    ProvisionJob.perform_later(job_details)
+    render :json => job_details
 
   end
 
@@ -119,7 +158,6 @@ class Ec2provisionController < ApplicationController
       else
         virtualization_engine = 'pv'
       end
-
       result = AmiInstanceTypeMatrix.where(family: family).where(storage_engine: storage_engine).where(virtualization_engine: virtualization_engine)
       result.length > 1 ? true : false
   end

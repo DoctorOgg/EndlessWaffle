@@ -12,7 +12,7 @@ class SecuritygroupsController < ApplicationController
   end
 
   def update
-    UpdateSecurityGroupsJob.perform_later
+    UpdateSecurityGroupsJob.perform_later(AWS_CONFIG)
     render :json => {:message => "request subbmited"}
   end
 

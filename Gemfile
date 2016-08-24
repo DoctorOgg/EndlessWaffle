@@ -38,3 +38,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 gem 'fog', '~> 1.38'
 gem 'net-ldap', '~> 0.15.0'
 gem 'rest-client', '~> 2.0'
+gem 'rack-protection', github: 'sinatra/rack-protection'
+gem 'sinatra', github: 'sinatra/sinatra'
+gem 'sidekiq', '~> 4.1', '>= 4.1.4'
+gem 'pg', '~> 0.18.4'

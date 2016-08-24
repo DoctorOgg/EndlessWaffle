@@ -30,3 +30,16 @@ seedAmiInstanceTypeMatrix = AmiInstanceTypeMatrix.create([
   {family: 'm1', virtualization_engine: 'pv',storage_engine: 'instance'},
   {family: 'm1', virtualization_engine: 'pv',storage_engine: 'ebs'}
   ])
+
+seedCommands = Command.create(
+  [
+    {
+      name: 'default_chef_provision',
+      command: "#!/bin/bash\nknife ec2 server create \\\n  --run-list 'role[$CHEF_ROLE]' \\\n  --image $AMI \\\n  --flavor $INSTANCE_SIZE \\\n  --node-name $NAME.$ROLE.$ENVIRONMENT \\\n  --security-group-ids $SECURITY_GROUPS \\\n  --tags Name=$NAME,environment=$ENVIRONMENT,role=$ROLE,build_uuid=$UUID \\\n  --ssh-key $SSH_KEY_NAME \\\n  -i $SSH_KEY_PATH \\\n  --ssh-user $SSH_USER \\\n  --environment $ENVIRONMENT \\\n  --subnet $SUBNET_ID \\\n  --ebs-size $DISK_SIZE\n"
+    },
+    {
+      name: 'default_chef_terminate',
+      command: "#!/bin/bash\nknife client delete $NAME.$ROLE.$ENVIRONMENT -y\nknife node delete $NAME.$ROLE.$ENVIRONMENT -y\n"
+    }
+  ]
+)

@@ -1,7 +1,7 @@
 class SubnetsController < ApplicationController
   before_action :restrict_access
   def update
-    UpdatesubnetsJob.perform_later
+    UpdatesubnetsJob.perform_later(AWS_CONFIG)
     render :json => {:message => "request subbmited"}
   end
 

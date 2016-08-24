@@ -4,6 +4,8 @@ class Role < ApplicationRecord
   validates :name, presence: true
 
     def init
+      self.provision_command ||= "default_chef_provision"
+      self.terminate_command ||= "default_chef_terminate"
       self.environments ||= {
         "dev1" => {
           "ami" => {  "version" => "16.04 LTS",

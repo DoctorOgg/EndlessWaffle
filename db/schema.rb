@@ -10,14 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160813024612) do
+ActiveRecord::Schema.define(version: 20160822164054) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "ami_instance_type_matrices", force: :cascade do |t|
     t.string   "family"
-    t.integer  "virtualization_engine"
-    t.integer  "storage_engine"
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
+    t.string   "virtualization_engine"
+    t.string   "storage_engine"
   end
 
   create_table "amis", force: :cascade do |t|
@@ -31,11 +34,11 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.string   "aki_id"
     t.datetime "created_at",        null: false
     t.datetime "updated_at",        null: false
-    t.index ["aki_id"], name: "index_amis_on_aki_id"
-    t.index ["ami_id"], name: "index_amis_on_ami_id"
-    t.index ["availability_zone"], name: "index_amis_on_availability_zone"
-    t.index ["name"], name: "index_amis_on_name"
-    t.index ["version"], name: "index_amis_on_version"
+    t.index ["aki_id"], name: "index_amis_on_aki_id", using: :btree
+    t.index ["ami_id"], name: "index_amis_on_ami_id", using: :btree
+    t.index ["availability_zone"], name: "index_amis_on_availability_zone", using: :btree
+    t.index ["name"], name: "index_amis_on_name", using: :btree
+    t.index ["version"], name: "index_amis_on_version", using: :btree
   end
 
   create_table "api_keys", force: :cascade do |t|
@@ -44,7 +47,23 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.string   "user"
     t.datetime "created_at",                   null: false
     t.datetime "updated_at",                   null: false
-    t.index ["access_token"], name: "index_api_keys_on_access_token"
+    t.index ["access_token"], name: "index_api_keys_on_access_token", using: :btree
+  end
+
+  create_table "buildlogs", force: :cascade do |t|
+    t.string   "uuid"
+    t.text     "log"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["uuid"], name: "index_buildlogs_on_uuid", using: :btree
+  end
+
+  create_table "commands", force: :cascade do |t|
+    t.string   "name"
+    t.text     "command"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_commands_on_name", using: :btree
   end
 
   create_table "ec2s", force: :cascade do |t|
@@ -85,16 +104,16 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.integer  "nodemap_id"
     t.datetime "created_at",         null: false
     t.datetime "updated_at",         null: false
-    t.index ["dnsName"], name: "index_ec2s_on_dnsName"
-    t.index ["imageId"], name: "index_ec2s_on_imageId"
-    t.index ["instanceId"], name: "index_ec2s_on_instanceId"
-    t.index ["instanceType"], name: "index_ec2s_on_instanceType"
-    t.index ["ipAddress"], name: "index_ec2s_on_ipAddress"
-    t.index ["nodemap_id"], name: "index_ec2s_on_nodemap_id"
-    t.index ["ownerId"], name: "index_ec2s_on_ownerId"
-    t.index ["privateDnsName"], name: "index_ec2s_on_privateDnsName"
-    t.index ["privateIpAddress"], name: "index_ec2s_on_privateIpAddress"
-    t.index ["reason"], name: "index_ec2s_on_reason"
+    t.index ["dnsName"], name: "index_ec2s_on_dnsName", using: :btree
+    t.index ["imageId"], name: "index_ec2s_on_imageId", using: :btree
+    t.index ["instanceId"], name: "index_ec2s_on_instanceId", using: :btree
+    t.index ["instanceType"], name: "index_ec2s_on_instanceType", using: :btree
+    t.index ["ipAddress"], name: "index_ec2s_on_ipAddress", using: :btree
+    t.index ["nodemap_id"], name: "index_ec2s_on_nodemap_id", using: :btree
+    t.index ["ownerId"], name: "index_ec2s_on_ownerId", using: :btree
+    t.index ["privateDnsName"], name: "index_ec2s_on_privateDnsName", using: :btree
+    t.index ["privateIpAddress"], name: "index_ec2s_on_privateIpAddress", using: :btree
+    t.index ["reason"], name: "index_ec2s_on_reason", using: :btree
   end
 
   create_table "nodemaps", force: :cascade do |t|
@@ -106,12 +125,26 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.datetime "updated_at",    null: false
   end
 
+  create_table "provision_job_data", force: :cascade do |t|
+    t.string   "arguments"
+    t.string   "environment"
+    t.string   "role"
+    t.string   "name"
+    t.text     "log"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+    t.string   "uuid"
+    t.string   "status"
+  end
+
   create_table "roles", force: :cascade do |t|
     t.string   "name"
-    t.string   "environments"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.index ["name"], name: "index_roles_on_name"
+    t.datetime "created_at",        null: false
+    t.datetime "updated_at",        null: false
+    t.string   "provision_command"
+    t.string   "terminate_command"
+    t.text     "environments"
+    t.index ["name"], name: "index_roles_on_name", using: :btree
   end
 
   create_table "security_groups", force: :cascade do |t|
@@ -125,9 +158,9 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.string   "tags"
     t.datetime "created_at",            null: false
     t.datetime "updated_at",            null: false
-    t.index ["group_id"], name: "index_security_groups_on_group_id"
-    t.index ["name"], name: "index_security_groups_on_name"
-    t.index ["vpc_id"], name: "index_security_groups_on_vpc_id"
+    t.index ["group_id"], name: "index_security_groups_on_group_id", using: :btree
+    t.index ["name"], name: "index_security_groups_on_name", using: :btree
+    t.index ["vpc_id"], name: "index_security_groups_on_vpc_id", using: :btree
   end
 
   create_table "subnets", force: :cascade do |t|
@@ -141,9 +174,9 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.boolean  "map_public_ip_on_launch"
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
-    t.index ["availability_zone"], name: "index_subnets_on_availability_zone"
-    t.index ["subnet_id"], name: "index_subnets_on_subnet_id"
-    t.index ["vpc_id"], name: "index_subnets_on_vpc_id"
+    t.index ["availability_zone"], name: "index_subnets_on_availability_zone", using: :btree
+    t.index ["subnet_id"], name: "index_subnets_on_subnet_id", using: :btree
+    t.index ["vpc_id"], name: "index_subnets_on_vpc_id", using: :btree
   end
 
   create_table "users", force: :cascade do |t|
@@ -160,7 +193,7 @@ ActiveRecord::Schema.define(version: 20160813024612) do
     t.string   "tenancy"
     t.datetime "created_at",      null: false
     t.datetime "updated_at",      null: false
-    t.index ["vpc_id"], name: "index_vpcs_on_vpc_id"
+    t.index ["vpc_id"], name: "index_vpcs_on_vpc_id", using: :btree
   end
 
 end

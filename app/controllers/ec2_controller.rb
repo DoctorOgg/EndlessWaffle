@@ -2,7 +2,7 @@ class Ec2Controller < ApplicationController
   before_action :restrict_access
 
   def update
-    UpdateEc2Job.perform_later
+    UpdateEc2Job.perform_later(AWS_CONFIG)
     render :json => {:message => "request subbmited"}
   end
 
@@ -21,7 +21,7 @@ class Ec2Controller < ApplicationController
 
   end
 
-  
+
 
   private
   def restrict_access

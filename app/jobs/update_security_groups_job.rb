@@ -4,8 +4,8 @@ class UpdateSecurityGroupsJob < ApplicationJob
   def perform(*args)
     fog_connection = Fog::Compute.new({
       :provider                 => 'AWS',
-      :aws_access_key_id        => AWS_CONFIG["aws_access_key_id"],
-      :aws_secret_access_key    => AWS_CONFIG["aws_secret_access_key"]
+      :aws_access_key_id        => args[0]["aws_access_key_id"],
+      :aws_secret_access_key    => args[0]["aws_secret_access_key"]
     })
 
     fog_connection.security_groups.all.each do |member|

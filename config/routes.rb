@@ -1,4 +1,6 @@
 Rails.application.routes.draw do
+  require 'sidekiq/web'
+  mount Sidekiq::Web => '/sidekiq'
 
   post 'role/create'
   post 'role/update'
@@ -6,10 +8,20 @@ Rails.application.routes.draw do
   post 'role/list'
   post 'role/delete'
 
+  post 'commands/create'
+  post 'commands/update'
+  post 'commands/show'
+  post 'commands/list'
+  post 'commands/delete'
+
   get 'ec2provision/showjobs'
   post 'ec2provision/showjobs'
+  post 'ec2provision/show'
+  get 'ec2provision/show/:uuid' => 'ec2provision#show'
+
   get 'ec2provision/build'
   post 'ec2provision/build'
+  get 'ec2provision/watchjob/:uuid' => 'ec2provision#watchjob'
 
   get 'vpc/show'
   get 'vpc/update'

@@ -1,0 +1,2 @@
+class Buildlog < ApplicationRecord
+end
