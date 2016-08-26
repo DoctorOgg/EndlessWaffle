@@ -118,7 +118,8 @@ class Ec2provisionController < ApplicationController
     Rails.logger.info "Finding New name for role: #{role.to_s},environment: #{environment.to_s}"
     used_seq=[]
     Nodemap.where(environment: environment).where(role: role).each do |member|
-       used_seq.push member.name.gsub(/[^\d]/, '').to_i
+       number = member.name.gsub(/[^\d]/, '').to_i
+       used_seq.push member.name.gsub(/[^\d]/, '').to_i if number != 0
     end
     if used_seq.empty?
       "#{role}1"
