@@ -8,7 +8,10 @@ class UpdateEc2Job < ApplicationJob
       :aws_access_key_id        => args[0]["aws_access_key_id"],
       :aws_secret_access_key    => args[0]["aws_secret_access_key"]
     })
-
+    known_machines=[]
+    Ec2.select('instanceId').each do |member|
+      known_machines.push member["instanceId"]
+    end
 
     fog_connection.describe_instances.data[:body]["reservationSet"].each do |instance|
       if Ec2.where(instanceId: instance["instancesSet"][0]["instanceId"]).exists?
@@ -16,6 +19,12 @@ class UpdateEc2Job < ApplicationJob
       else
         record = Ec2.new
       end
+
+      # remove machine from list if listed
+      if known_machines.include? instance["instancesSet"][0]["instanceId"]
+        known_machines.delete(instance["instancesSet"][0]["instanceId"])
+      end
+
       instance["instancesSet"][0].each do |k,v|
         record[k] = v
       end
@@ -47,5 +56,20 @@ class UpdateEc2Job < ApplicationJob
       # done
       record.save
     end
+
+    # we should update the reamining nodes listed in known_machines to mark them as terminated
+    known_machines.each do |m|
+      if Ec2.where(instanceId: m).exists?
+        record = Ec2.where(instanceId: m).first
+        record["instanceState"]["name"] = "terminated"
+        nmap = record.nodemap
+        nmap.instanceState = "terminated"
+        nmap.save
+        record.save
+      end
+    end
+
+
   end
+
 end
