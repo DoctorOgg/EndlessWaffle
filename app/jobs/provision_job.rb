@@ -61,25 +61,33 @@ class ProvisionJob < ApplicationJob
       "SUBNET_ID" => build_parms[:subnet][:subnet_id]
     }
 
-    begin
-      PTY.spawn(process_vars, command_filename ) do |stdin, stdout, pid|
-        begin
-          stdin.each do |line|
-            Buildlog.create([{:uuid => args[0][:uuid], :log => line}])
-            r.publish args[0][:uuid], line
-          end
-        rescue Errno::EIO
-          Buildlog.create([{:uuid => args[0][:uuid], :log => "Errno:EIO error, but this probably just means that the process has finished giving output"}])
+    # begin
+    #   PTY.spawn(process_vars, command_filename ) do |stdin, stdout, pid|
+    #     begin
+    #       stdin.each do |line|
+    #         Buildlog.create([{:uuid => args[0][:uuid], :log => line}])
+    #         r.publish args[0][:uuid], line
+    #       end
+    #     rescue Errno::EIO
+    #       Buildlog.create([{:uuid => args[0][:uuid], :log => "Errno:EIO error, but this probably just means that the process has finished giving output"}])
+    #
+    #     end
+    #   end
+    # rescue PTY::ChildExited
+    #   Buildlog.create([{:uuid => args[0][:uuid], :log => "The child process exited!"}])
+    # end
+    # Buildlog.create([{:uuid => args[0][:uuid], :log => "Ending job"}])
 
-        end
+    IO.popen({process_vars,command_filename, 'r', :unsetenv_others=>true, :chdir=>"/var/tmp") do |io|
+      while line=io.gets
+        Buildlog.create([{:uuid => args[0][:uuid], :log => line}])
+        r.publish args[0][:uuid], line
       end
-    rescue PTY::ChildExited
-      Buildlog.create([{:uuid => args[0][:uuid], :log => "The child process exited!"}])
     end
-    Buildlog.create([{:uuid => args[0][:uuid], :log => "Ending job"}])
-
+    Buildlog.create([{:uuid => args[0][:uuid], :log => "The child process exited!"}])
     r.publish args[0][:uuid], "EOF"
     FileUtils.rm command_filename
+    Buildlog.create([{:uuid => args[0][:uuid], :log => "Ending job"}])
 
     job_data.save
     UpdateEc2Job.perform_later(AWS_CONFIG)
