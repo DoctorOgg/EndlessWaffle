@@ -40,6 +40,7 @@ class ProvisionJob < ApplicationJob
     r = REDIS.dup
     job_data = ProvisionJobDatum.where(uuid: args[0][:uuid]).first
     job_data.status = "running"
+    job_data.save
     Buildlog.create([{:uuid => args[0][:uuid], :log => "running"}])
     build_parms = args[0].deep_symbolize_keys
 
@@ -58,7 +59,8 @@ class ProvisionJob < ApplicationJob
       "SSH_KEY_PATH" => build_parms[:environment_config][:ssh_key_path],
       "SSH_USER" => build_parms[:environment_config][:ami][:ssh_user],
       "INSTANCE_SIZE" => build_parms[:environment_config][:ami][:instance_size],
-      "SUBNET_ID" => build_parms[:subnet][:subnet_id]
+      "SUBNET_ID" => build_parms[:subnet][:subnet_id],
+      "HOME" => ENV['HOME']
     }
 
     begin
@@ -70,7 +72,6 @@ class ProvisionJob < ApplicationJob
           end
         rescue Errno::EIO
           Buildlog.create([{:uuid => args[0][:uuid], :log => "Errno:EIO error, but this probably just means that the process has finished giving output"}])
-
         end
       end
     rescue PTY::ChildExited

@@ -8,7 +8,7 @@ class Ec2Controller < ApplicationController
 
   def show
     if params.key? :query
-      @query = Ec2.joins(:nodemap).where("'nodemaps.instanceState' != ?",'terminated')
+      @query = Ec2.joins(:nodemap).where("'nodemaps.instanceState' <> ?",'terminated')
       @query = @query.where("nodemaps.name = ?", params[:query][:name]) if params[:query].key? :name
       @query = @query.where("nodemaps.role = ?", params[:query][:role])  if params[:query].key? :role
       @query = @query.where("nodemaps.environment = ?", params[:query][:environment]) if params[:query].key? :environment
