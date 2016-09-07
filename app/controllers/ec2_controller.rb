@@ -8,7 +8,7 @@ class Ec2Controller < ApplicationController
 
   def show
     if params.key? :query
-      @query = Ec2.joins(:nodemap).where("'nodemaps.instanceState' <> ?",'terminated')
+      @query = Ec2.joins(:nodemap).where("\"nodemaps\".\"instanceState\" <> ?",'terminated')
       @query = @query.where("nodemaps.name = ?", params[:query][:name]) if params[:query].key? :name
       @query = @query.where("nodemaps.role = ?", params[:query][:role])  if params[:query].key? :role
       @query = @query.where("nodemaps.environment = ?", params[:query][:environment]) if params[:query].key? :environment
@@ -16,7 +16,7 @@ class Ec2Controller < ApplicationController
       @query = @query.where("'nodemaps.instanceState' = ?", params[:query][:instanceState]) if params[:query].key? :instanceState
       render :json => @query.order("nodemaps.environment").order("nodemaps.role").order("nodemaps.name").to_json(:include => :nodemap)
     else
-      render :json => Ec2.joins(:nodemap).where("'nodemaps.instanceState' != ?",'terminated').order("nodemaps.environment").order("nodemaps.role").order("nodemaps.name").to_json(:include => :nodemap)
+      render :json => Ec2.joins(:nodemap).where("\"nodemaps\".\"instanceState\" <> ?",'terminated').order("nodemaps.environment").order("nodemaps.role").order("nodemaps.name").to_json(:include => :nodemap)
     end
 
   end
