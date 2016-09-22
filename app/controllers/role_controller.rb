@@ -1,4 +1,6 @@
 class RoleController < ApplicationController
+  require 'pty'
+
   before_action :restrict_access
 
   def create
