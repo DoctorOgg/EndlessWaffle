@@ -1,4 +1,6 @@
 class Ec2terminateController < ApplicationController
+  require 'pty'
+
   before_action :restrict_access
 
 
