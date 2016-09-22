@@ -38,7 +38,7 @@ class Ec2terminateController < ApplicationController
       "NAME" => name,
       "ROLE" => role,
       "ENVIRONMENT" => environment,
-      "INSTANCEID" = instanceId,
+      "INSTANCEID" => instanceId,
       "HOME" => ENV['HOME']
     }
 
