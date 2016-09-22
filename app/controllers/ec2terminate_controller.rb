@@ -7,7 +7,7 @@ class Ec2terminateController < ApplicationController
     if !params.key? :instanceId
       render :json => {:error => "You Must Sepecify an instanceId".to_json}, :status => 500; return
     end
-    query = Ec2.joins(:nodemap).where("\"nodemaps\".\"instanceState\" <> ?",'terminated').where("'instanceId' = ?", params[:instanceId]).first
+    query = Ec2.joins(:nodemap).where("\"nodemaps\".\"instanceState\" <> ?",'terminated').where("\"instanceId\" = ?", params[:instanceId]).first
 
     if query == nil
       render :json => {:error => "instanceId specified was not found or was already terminated".to_json}, :status => 500; return
