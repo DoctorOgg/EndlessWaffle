@@ -2,6 +2,9 @@ Rails.application.routes.draw do
   require 'sidekiq/web'
   mount Sidekiq::Web => '/sidekiq'
 
+  post 'ec2terminateC/terminate'
+
+
   post 'role/create'
   post 'role/update'
   post 'role/show'

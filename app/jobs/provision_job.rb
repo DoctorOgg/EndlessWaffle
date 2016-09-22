@@ -27,7 +27,6 @@ class ProvisionJob < ApplicationJob
   end
 
   def perform(*args)
-    log=[]
     role_record = Role.where(name: arguments[0][:role]).first
     command_record = Command.where(name: role_record.provision_command).first
     command_filename = "/tmp/#{arguments[0][:uuid]}-#{$$}.sh"
@@ -79,19 +78,10 @@ class ProvisionJob < ApplicationJob
     end
     Buildlog.create([{:uuid => args[0][:uuid], :log => "Ending job"}])
 
-    # IO.popen(process_vars,command_filename, 'r', :unsetenv_others=>true, :chdir=>"/var/tmp") do |io|
-    #   while line=io.gets
-    #     Buildlog.create([{:uuid => args[0][:uuid], :log => line}])
-    #     r.publish args[0][:uuid], line
-    #   end
-    # end
-    # Buildlog.create([{:uuid => args[0][:uuid], :log => "The child process exited!"}])
-    # r.publish args[0][:uuid], "EOF"
-    # FileUtils.rm command_filename
-    # Buildlog.create([{:uuid => args[0][:uuid], :log => "Ending job"}])
-
     job_data.save
     UpdateEc2Job.perform_later(AWS_CONFIG)
+    FileUtils.rm command_filename
+
   end
 
 

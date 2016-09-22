@@ -35,7 +35,7 @@ seedCommands = Command.create(
   [
     {
       name: 'default_chef_provision',
-      command: "#!/bin/bash\nknife ec2 server create \\\n  --run-list 'role[$CHEF_ROLE]' \\\n  --image $AMI \\\n  --flavor $INSTANCE_SIZE \\\n  --node-name $NAME.$ROLE.$ENVIRONMENT \\\n  --security-group-ids $SECURITY_GROUPS \\\n  --tags Name=$NAME,environment=$ENVIRONMENT,role=$ROLE,build_uuid=$UUID \\\n  --ssh-key $SSH_KEY_NAME \\\n  -i $SSH_KEY_PATH \\\n  --ssh-user $SSH_USER \\\n  --environment $ENVIRONMENT \\\n  --subnet $SUBNET_ID \\\n  --ebs-size $DISK_SIZE\n"
+      command: "#!/bin/bash\nexport PATH=\"/opt/chef/embedded/bin/:/opt/chef/bin/:/usr/local/bin:/usr/bin:/bin\"\nexport HOME=/opt/oun\nknife ec2 server create  \\\n\t--run-list \"role[${CHEF_ROLE}]\" \\\n\t--image $AMI \\\n\t--flavor $INSTANCE_SIZE  \\\n\t--node-name $NAME.$ROLE.$ENVIRONMENT \\\n\t--security-group-ids $SECURITY_GROUPS \\\n\t--tags Name=$NAME,environment=$ENVIRONMENT,role=$ROLE,build_uuid=$UUID \\\n\t--ssh-key $SSH_KEY_NAME \\\n\t--identity-file $SSH_KEY_PATH \\\n\t--ssh-user $SSH_USER \\\n\t--environment $ENVIRONMENT \\\n\t--subnet $SUBNET_ID \\\n\t--ebs-size $DISK_SIZE"
     },
     {
       name: 'default_chef_terminate',
