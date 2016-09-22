@@ -50,6 +50,7 @@ class Ec2provisionController < ApplicationController
     if pre_flight_errors.length > 0
       render :json => {:errors => pre_flight_errors}.to_json, :status => 500; return
     end
+    UpdateEc2Job.perform_now(AWS_CONFIG)
 
     role = params["role"]
     environment = params["environment"]

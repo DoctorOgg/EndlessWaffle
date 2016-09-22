@@ -16,6 +16,7 @@ class Ec2terminateController < ApplicationController
     end
 
     result = goTerminateThyself(query.nodemap["role"],query.nodemap["environment"],query.nodemap["name"],query.instanceId)
+    UpdateEc2Job.perform_now(AWS_CONFIG)
     render :json => result
   end
 
