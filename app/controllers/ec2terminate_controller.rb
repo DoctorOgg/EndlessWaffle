@@ -35,6 +35,8 @@ class Ec2terminateController < ApplicationController
     File.open(command_filename,"w") do |f|
       f.write(command_record.command)
     end
+    File.chmod(0700,command_filename)
+
 
     process_vars = {
       "NAME" => name,
